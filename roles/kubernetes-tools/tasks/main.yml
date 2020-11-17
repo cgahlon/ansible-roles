@@ -1,0 +1,121 @@
+---
+# tasks file for kubernetes-clients
+
+# Need to add install for kind (k8s indocker)
+# Download directions here: https://github.com/kubernetes-sigs/kind
+# TLDR: curl -Lo ./kind "https://kind.sigs.k8s.io/dl/v0.9.0/kind-$(uname)-amd64" && chmod +x kind && sudo mv kind /usr/local/bin/kind
+
+# Versions are all controlled in the vars/main.yml
+
+# Kubectl
+- name: Download and install kubectl
+  get_url:
+    url: 'https://storage.googleapis.com/kubernetes-release/release/v{{ kubectl_version }}/bin/linux/amd64/kubectl'
+    checksum: 'sha256:f51adfe7968ee173dbfb3dabfc10dc774983cbf8a3a7c1c75a1423b91fda6821'
+    dest: '/usr/local/bin/kubectl'
+    mode: 0755
+  become: yes
+  tags:
+    - kubectl
+
+- block: # k9s
+  - name: Download k9s tarball
+    get_url:
+      url: 'https://github.com/derailed/k9s/releases/download/v{{ k9s_version }}/k9s_Linux_x86_64.tar.gz'
+      checksum: 'sha256:42d8aef6b839a9bc60de29d2461521596ce2d1f66347dbf5196983229cfeafd2'
+      dest: '/tmp/'
+
+  - name: Extract k9s tarball
+    unarchive:
+      src: '/tmp/k9s_Linux_x86_64.tar.gz'
+      dest: '/tmp/'
+
+  - name: Put k9s binary in /usr/local/bin
+    command: mv /tmp/k9s /usr/local/bin/k9s
+    become: yes
+
+  tags:
+    - k9s
+
+# lens (200+ MB bloated AppImage, bleh!)
+- name: Download and install lens
+  get_url:
+    url: 'https://github.com/lensapp/lens/releases/download/v{{ lens_version }}/Lens-{{ lens_version }}.AppImage'
+    checksum: 'sha256:391b41a95438fd9dd63ef41df0f08797f8ec7fc406baa02cbc65c7f0aa823d4f'
+    dest: '/usr/local/bin/lens'
+    mode: 0755
+  become: yes
+  tags:
+    - lens
+
+- block: #helm
+  - name: Install Helm 3
+    get_url:
+      url: 'https://get.helm.sh/helm-v{{ helm_version }}-linux-amd64.tar.gz'
+      dest: '/tmp/'
+
+  - name: Extract helm tarball
+    unarchive:
+      src: '/tmp/helm-v{{ helm_version }}-linux-amd64.tar.gz'
+      dest: '/tmp/'
+
+  - name: Put helm executable in /usr/local/bin
+    command: mv /tmp/linux-amd64/helm /usr/local/bin/
+    become: yes
+
+  tags:
+    - helm
+
+
+- block: #istioctl
+  # Note you can look at version and obtain sha256sum from here:  https://github.com/istio/istio/releases/
+  - name: Download istioctl tarball
+    get_url:
+      url: 'https://github.com/istio/istio/releases/download/{{ istioctl_version }}/istioctl-{{ istioctl_version }}-linux-amd64.tar.gz'
+      dest: /tmp/istioctl-{{ istioctl_version }}-linux-amd64.tar.gz
+
+  - name: Extract istioctl tarball
+    unarchive:
+      src: '/tmp/istioctl-{{ istioctl_version }}-linux-amd64.tar.gz'
+      dest: '/tmp/'
+
+  - name: Put istioctl binary in /usr/local/bin
+    command: mv /tmp/istioctl /usr/local/bin/istioctl
+    become: yes
+  
+  tags:
+    - istioctl
+
+- block: # krew
+    # yes, I'm using wget.  get_url sucks at following redirects and I'm not wasting my time debugging
+  - name: Download latest krew tarball
+    command: 'wget https://github.com/kubernetes-sigs/krew/releases/download/{{ krew_version }}/krew.tar.gz -O /tmp/krew.tar.gz'
+      # sha256sum: 039fbb18c784f6b097b7ee6d048d36dfdb055c6e3a7c76e7251536594d6027a2
+      # dest: /tmp/krew.tar.gz
+    args:
+      warn: false
+
+  - name: Extract krew tarball
+    unarchive:
+      src: /tmp/krew.tar.gz
+      dest: /tmp/
+
+  - name: Install krew
+    command: /tmp/krew-linux_amd64 install krew
+
+  - name: Clean up krew installers
+    command: "rm -f /tmp/krew*"
+    args:
+      warn: false
+
+  tags:
+    - krew
+
+# Clean up, always, don't bother me if no files exist.
+- name: Clean up .gz files from /tmp
+  command: "rm -f /tmp/*.gz || true"
+  become: yes
+  args:
+    warn: false
+  tags: [always]
+  changed_when: False

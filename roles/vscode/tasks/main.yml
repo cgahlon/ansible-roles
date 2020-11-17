@@ -1,0 +1,67 @@
+---
+# tasks file for vscode
+
+# Using block for become: yes.
+- block:
+
+  - name: Install Microsoft rpm signing key
+    rpm_key:
+      state: present
+      key: 'https://packages.microsoft.com/keys/microsoft.asc'
+    
+  - name: Set up VSCode repo
+    yum_repository:
+      description: 'Microsoft Visualstudio Code Repo'
+      name: 'code'
+      baseurl: 'https://packages.microsoft.com/yumrepos/vscode'
+      enabled: true
+      gpgcheck: true
+      gpgkey: 'https://packages.microsoft.com/keys/microsoft.asc'
+
+  - name: Install VSCode
+    package:
+      name: code
+      state: latest
+  become: true
+  tags:
+    - vscode-install
+
+# Turn off the crash reporter
+# Vscode doesn't put argv.json in the correct location on linux
+# https://github.com/microsoft/vscode/issues/84808
+# TODO: Follow up with this during next release
+- name: Create ansible_user-dir/.vscode
+  file:
+    state: directory
+    name: "{{ ansible_user_dir }}/.vscode"
+    mode: 0750
+
+- name: Copy argv.json to ansible_user_dir/.vscode
+  copy:
+    src: vscode/argv.json
+    dest: "{{ ansible_user_dir }}/.vscode/argv.json"
+    mode: 0664
+
+- name: Create ~/.config/Code directory
+  file:
+    state: directory
+    name: "{{ ansible_user_dir }}.config/Code"
+    mode: 0700
+
+# Put user settings in place with private defaults already set
+# i.e. no damn telemetry and no damn "experiments"
+- name: Create ansible_user_dir/.config/Code/User directory
+  file:
+    state: directory
+    name: "{{ ansible_user_dir }}/.config/Code/User"
+    mode: 0700
+
+- name: Copy settings.json (with telemetry disabled)
+  copy:
+    src: Code/User/settings.json
+    dest: "{{ ansible_user_dir }}/.config/Code/User/settings.json"
+
+- name: Copy keybindings.json (turn off annoying ctrl+tab MRU "feature")
+  copy:
+    src: Code/User/keybindings.json
+    dest: "{{ ansible_user_dir }}/.config/Code/User/keybindings.json"

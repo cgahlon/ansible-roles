@@ -1,0 +1,36 @@
+---
+# vars file for packages
+
+# Things I want, or do not want on my workstation
+
+packages:
+    - deluge
+    - git
+    - htop
+    - jq
+    - kdiff3
+    - ksensors
+    - qbittorrent
+    - sysstat
+    - sqlitebrowser
+    - vim-enhanced
+    - vim-trailing-whitespace
+    - chromium-browser-privacy
+
+packages_remove:
+    - vim-minimal
+    - kget
+    - kontact
+
+rpmfusion_packages:
+    - handbrake
+    - handbrake-gui
+    - vlc
+
+remi_packages:
+    - libdvdcss
+    - transcode
+
+docker_packages:
+    - docker-ce
+    - docker-ce-cli

@@ -1,0 +1,2 @@
+[default]
+127.0.0.1 # I use the IP because localhost resolution can be messed with by some processes

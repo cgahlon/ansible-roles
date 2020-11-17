@@ -1,0 +1,117 @@
+---
+# tasks file for packages
+
+# Using block for become: yes
+- block:
+
+  - name: Faster dnf
+    ini_file:
+      path: /etc/dnf/dnf.conf
+      section: main
+      option: fastestmirror
+      value: "True"
+
+  # remi repo so we can install useful media libraries
+  - block: #remi repo block
+    - name: Check if remi release repo is already installed
+      command: "rpm -q remi-release-{{ ansible_distribution_major_version }}"
+      register: remi_check
+      changed_when: "remi_check.rc != 0"
+      args:
+        warn: false
+
+    - name: Import remi repo key
+      rpm_key:
+        state: present
+        key: https://rpms.remirepo.net/RPM-GPG-KEY-remi2020
+      when: remi_check.rc != 0
+
+    - name: Install remi repo
+      dnf:
+        name: "https://rpms.remirepo.net/fedora/remi-release-{{ ansible_distribution_major_version }}.rpm"
+        state: latest
+        update_cache: no  
+      become: yes
+      when: remi_check.rc != 0
+
+  - block: #rpmfusion repo block
+    - name: Check if remi release repo is already installed
+      command: "rpm -q rpmfusion-free-release-{{ ansible_distribution_major_version }}"
+      register: repmfusion_check
+      changed_when: "repmfusion_check.rc != 0"
+      args:
+        warn: false
+
+    - name: Add rpmfusion-free-release repo
+      dnf:
+        name: "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+        state: latest
+        update_cache: no
+      when: repmfusion_check.rc != 0
+
+    - name: Add rpmfusion-nonfree-release repo
+      dnf:
+        name: "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+        state: latest
+        update_cache: no
+      when: repmfusion_check.rc != 0
+
+  - block: # docker-ce repo block
+    - name: Check if docker-ce.repo file exists
+      command: ls /etc/yum.repos.d/docker-ce.repo
+      register: docker_ce_check
+      changed_when: "docker_ce_check.rc != 0"
+
+    - name: Add docker-ce repo from Docker.com
+      get_url:
+        url: https://download.docker.com/linux/fedora/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+      when: docker_ce_check != 0
+
+  - name: Update dnf cache
+    dnf:
+      update_cache: yes
+
+  - name: Install packages from Fedora projet
+    dnf:
+      name: "{{ packages }}"
+      state: latest
+      update_cache: no
+
+  - name: Remove unwanted Fedora project packages 
+    dnf:
+      name:  "{{ packages_remove }}"
+      state: absent
+      update_cache: no
+
+  - name: Install packages from rpmfusion repos
+    dnf:
+      name: "{{ rpmfusion_packages }}"
+      state: latest
+      update_cache: no
+
+  - name: Install remi media libs/tools
+    dnf:
+      name: "{{ remi_packages }}"
+      state: latest
+      update_cache: no
+
+  - name: Symlink /usr/bin/vim to /usr/bin/vi
+    file:
+      path: /usr/bin/vi
+      src: /usr/bin/vim
+      state: link
+ 
+  - name: Add darktable repo for latest version (Thank you OpenSuse)
+    command: dnf config-manager --add-repo https://download.opensuse.org/repositories/graphics:darktable/Fedora_32/graphics:darktable.repo
+  
+  - name: Install darktable
+    package:
+      name: darktable
+      state: latest
+
+  - name: dnf unused package cleanup
+    dnf:
+      autoremove: yes
+
+  become: yes

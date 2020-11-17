@@ -1,0 +1,18 @@
+---
+# tasks file for docker-ce
+
+# TODO:  Put the user in the docker group for sock permissions so they don't have to sudo.  This is for a workstation NOt a server after all.
+- name: Install docker packages
+  dnf:
+    name: "{{ docker_packages }}"
+    state: latest
+    update_cache: no
+  register: docker_install
+
+- debug: var=docker_install
+  
+- name: Enable and (re)start docker.service
+  service:
+    name: docker.service
+    enabled: yes
+    state: restarted

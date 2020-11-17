@@ -1,0 +1,12 @@
+---
+# vars file for kubernetes-clients
+
+#Do not prefix versions with a 'v' or other text as it breaks URLs that are not consitent in prefixing.
+# The inconsistencies are handled in the tasks that need it.
+kubectl_version: "1.19.2"
+k9s_version: "0.22.1"
+lens_version: "3.6.3"
+helm_version: "3.3.3"
+istioctl_version: "1.7.3"
+#krew_version: "latest"
+krew_version: "v0.4.0"

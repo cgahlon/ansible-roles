@@ -1,0 +1,11 @@
+---
+# vars file for docker-ce
+
+# Do you want to configure insecure registeries
+insecure_registries_enabled: True
+
+insecure_registeries:
+    - domain: "hub.gahlon.com"
+      port: 443
+    - domain: "localhost"
+      port: 5000

@@ -1,0 +1,9 @@
+---
+- hosts: all
+  vars:
+      ansible_python_interpreter: /usr/bin/python3
+  roles:
+    - { role: packages, tags: ["packages"] }
+    - { role: kubernetes-tools, tags: ["k8s-tools","kubernetes-toosl"] }
+    - { role: vscode, tags: ["vscode"] }
+    - { role: docker-ce, tags: ["docker","docker-ce"] }

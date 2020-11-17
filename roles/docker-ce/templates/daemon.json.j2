@@ -1,0 +1,7 @@
+{
+    "insecure-registries" : [ 
+      {% for item in insecure_registeries -%}
+        {% if loop.index > 1 %},{% endif %} {{ item.domain }}:{{ item.port }}
+      {%- endfor %}
+     ]
+}

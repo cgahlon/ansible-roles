@@ -1,0 +1,55 @@
+// Some sane settings.
+{
+    // I don't like being spied on or using cloud things for personal preferences.
+    "telemetry.enableCrashReporter": false,
+    "telemetry.enableTelemetry": false,
+    "settingsSync.ignoredSettings": [
+    
+    ],
+    // I don't give cpu cycles away for free.
+    // Fetches experiments to run from a Microsoft online service.
+    "workbench.enableExperiments": false,
+
+    // Controls whether unsaved files are remembered between sessions, allowing the save prompt when exiting the editor to be skipped.
+	//  - off: Disable hot exit. A prompt will show when attempting to close a window with dirty files.
+	//  - onExit: Hot exit will be triggered when the last window is closed on Windows/Linux or when the `workbench.action.quit` command is triggered (command palette, keybinding, menu). All windows without folders opened will be restored upon next launch. A list of workspaces with unsaved files can be accessed via `File > Open Recent > More...`
+	//  - onExitAndWindowClose: Hot exit will be triggered when the last window is closed on Windows/Linux or when the `workbench.action.quit` command is triggered (command palette, keybinding, menu), and also for any window with a folder opened regardless of whether it's the last window. All windows without folders opened will be restored upon next launch. A list of workspaces with unsaved files can be accessed via `File > Open Recent > More...`
+    "files.hotExit": "onExitAndWindowClose",
+
+    // Microsoft was never keen on POSIX compliance.  but atleast their editor lets us turn on the new line at EOF
+    // When enabled, insert a final new line at the end of the file when saving it.
+    "files.insertFinalNewline": true,
+
+    // I hate welcome pages!  Especially ones I've seen before!
+    "workbench.startupEditor": "none",
+
+    // Increase tree indentation. I have 4k monitors and its nice to have better deliniation
+    "workbench.tree.indent": 16,
+
+    // If I delete a file its because I really don't want it around anymore.
+    "workbench.editor.closeOnFileDelete": true,
+
+    // Visual indicator of tabs with changes
+    "workbench.editor.highlightModifiedTabs": true,
+
+    // Again with the cloud stuff I don't trust!
+    // What if i accidentally paste a password?
+    // Companies change their data retention.  Trust no one!
+    // And yes, I do look both ways crossing a one-way street!
+    "workbench.settings.enableNaturalLanguageSearch": false,
+
+    // Set my prefered theme.  I like very high contrast.
+    "workbench.colorTheme": "Default Dark+",
+
+    // Since the user settings.json gets purged of anything set to the default value
+    // its nice to have it open the defauls so you don't have to waste time searching the internet
+    "workbench.settings.openDefaultSettings": true,
+    
+    // If we change focus, save our work "just in case"
+    "files.autoSave": "onWindowChange",
+    "files.associations": {
+        "*.pipeline": "groovy",
+        "*.yml": "ansible"
+    },
+    "editor.acceptSuggestionOnEnter": "off"
+}
